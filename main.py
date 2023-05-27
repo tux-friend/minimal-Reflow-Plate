@@ -191,7 +191,6 @@ def reflow():
     time.sleep(5)
 
 butstate = 0
-disp_start()
 temp_max = 50.0
 control_ssr(0)
 while True:
