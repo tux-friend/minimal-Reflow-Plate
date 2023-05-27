@@ -49,10 +49,8 @@ def get_temp():
 
 def control_temp(setpoint, temp):
     global last_error, integral
-    if setpoint <= 150.0 and setpoint > 100.0:
-        setpoint = setpoint - 10.0
-    elif setpoint <=100.0:
-        setpoint = setpoint - 15.0
+    if setpoint <= 150.0:
+        setpoint = setpoint - 12.0
     if temp<=150:
         kp = 100.0
         ki = 0.025
