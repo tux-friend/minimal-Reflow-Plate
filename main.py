@@ -46,6 +46,8 @@ def get_temp():
 
 def control_temp(setpoint, temp):
     last_error, integral = 0, 0
+    if setpoint <150:
+        setpoint = setpoint - 11.0
     if temp<=150:
         kp = 100.0
         ki = 0.025
