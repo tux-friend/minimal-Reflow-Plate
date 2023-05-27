@@ -10,13 +10,14 @@ oled = SSD1306_I2C(128,64, i2c)
 sck = Pin(2, Pin.OUT)
 cs = Pin(1, Pin.OUT)
 so = Pin(0, Pin.IN)
-ssrPin = 6
+ssr = Pin(6, Pin.OUT)
 tk = MAX6675(sck, cs, so)
 
 # Reflow profile Sn63/Pb37, (duration, temp)
 profile = [
     (50,100),
-    (90,150),
+    (45,125),
+    (45,150),
     (30,183),
     (60,235),
     (30,183),
@@ -29,7 +30,7 @@ integral = 0
 duration = 0
 for step in range(len(profile)):
     duration += profile[step][0]
-time_step = 0.25
+time_step = 0.1
 
 #Button press functions + debounce
 def on_pressed(timer):
@@ -48,10 +49,12 @@ def get_temp():
 
 def control_temp(setpoint, temp):
     global last_error, integral
+    if setpoint <= 150:
+        setpoint = setpoint - 10.0
     if temp<=150:
-        kp = 25.0
+        kp = 100.0
         ki = 0.025
-        kd = 150.0
+        kd = 20.0
     else:
         kp = 300.0
         ki = 0.05
@@ -67,11 +70,13 @@ def control_temp(setpoint, temp):
     # Update the last error
     last_error = error
     # Limit the control output to the range [0, 1]
-    output = max(0, min(1, output))
+    if temp > setpoint:
+        output = 0
+    else:
+        output = max(0, min(1, output))        
     return output
 
 def control_ssr(output):
-    ssr = Pin(6, Pin.OUT)
     if output > 0:
         ssr.on()  # Turn on SSR
     else:
