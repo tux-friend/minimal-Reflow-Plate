@@ -24,9 +24,6 @@ profile = [
     (60,100)
 ]
 
-# Variables for PID control
-last_error = 0
-integral = 0
 duration = 0
 for step in range(len(profile)):
     duration += profile[step][0]
@@ -48,9 +45,7 @@ def get_temp():
     return temp
 
 def control_temp(setpoint, temp):
-    global last_error, integral
-    if setpoint <= 150.0:
-        setpoint = setpoint - 12.0
+    last_error, integral = 0, 0
     if temp<=150:
         kp = 100.0
         ki = 0.025
