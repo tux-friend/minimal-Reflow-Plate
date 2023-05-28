@@ -4,7 +4,7 @@ from ssd1306 import SSD1306_I2C
 from max6675 import MAX6675
 
 i2c = SoftI2C(scl=Pin(3),sda=Pin(4))
-button = Pin(8, Pin.IN, Pin.PULL_DOWN)
+button = Pin(8, Pin.IN, Pin.PULL_UP)
 oled = SSD1306_I2C(128,64, i2c)
 
 sck = Pin(2, Pin.OUT)
@@ -14,6 +14,7 @@ ssr = Pin(6, Pin.OUT)
 tk = MAX6675(sck, cs, so)
 
 # Reflow profile Sn63/Pb37, (duration, temp)
+
 profile = [
     (50,100),
     (45,125),
@@ -24,6 +25,9 @@ profile = [
     (60,100)
 ]
 
+# Variables for PID control
+last_error = 0
+integral = 0
 duration = 0
 for step in range(len(profile)):
     duration += profile[step][0]
@@ -45,13 +49,11 @@ def get_temp():
     return temp
 
 def control_temp(setpoint, temp):
-    last_error, integral = 0, 0
-    if setpoint <150:
-        setpoint = setpoint - 11.0
+    global last_error, integral
     if temp<=150:
         kp = 100.0
         ki = 0.025
-        kd = 20.0
+        kd = 200.0
     else:
         kp = 300.0
         ki = 0.05
@@ -67,7 +69,7 @@ def control_temp(setpoint, temp):
     # Update the last error
     last_error = error
     # Limit the control output to the range [0, 1]
-    if temp > setpoint:
+    if temp >= setpoint and setpoint < 230:
         output = 0
     else:
         output = max(0, min(1, output))        
@@ -96,7 +98,7 @@ def disp_start():
 def disp_temp():
     t = tk.read()
     oled.fill_rect(0,55,80,10,0)
-    oled.text("T:{}C".format(t), 0, 55)
+    oled.text("T:%.1fC" % t, 0, 55)
     oled.show()
 
 def disp_graph():
@@ -131,7 +133,7 @@ def disp_cool():
 
 def disp_pixel(temp, tt):
     oled.fill_rect(0,0,128,10,0)
-    oled.text("T: {}C".format(temp), 0, 0)
+    oled.text("T:%.1fC" % temp, 0, 0)
     oled.text("{}s".format(tt), 90, 0)
     # Plot temperature vs. time graph
     graph_width = 126
@@ -160,6 +162,9 @@ def disp_finish():
         time.sleep(0.2)
 
 def reflow():
+    a = time.localtime()
+    open('temp_'+str(a[3])+str(a[4])+'.csv','w').close()
+    data = open('temp_'+str(a[3])+str(a[4])+'.csv','w')
     global butstate
     disp_graph()
     butstate = 0
@@ -171,9 +176,14 @@ def reflow():
         
         d = int(duration/time_step)
         temp = [0] * d
+        if setpoint <= 150:
+            setpoint_corr = 0.85*setpoint
     
         for i in range(d):
             t = get_temp()
+            data.write(str(tt)+','+str(t)+'\n')
+            if i <= int(0.5*d):
+                setpoint = setpoint_corr
             power = control_temp(setpoint, t)
             control_ssr(power)
             if (i % int(1/time_step)) == 0:
@@ -188,11 +198,13 @@ def reflow():
                 time.sleep(4)
                 butstate = 0
                 return
+    data.close()
     control_ssr(0)
     disp_finish()
     time.sleep(5)
 
 butstate = 0
+disp_start()
 temp_max = 50.0
 control_ssr(0)
 while True:
