@@ -31,7 +31,7 @@ integral = 0
 duration = 0
 for step in range(len(profile)):
     duration += profile[step][0]
-time_step = 0.1
+time_step = 0.2
 
 #Button press functions + debounce
 def on_pressed(timer):
@@ -53,7 +53,7 @@ def control_temp(setpoint, temp):
     if temp<=150:
         kp = 100.0
         ki = 0.025
-        kd = 200.0
+        kd = 20.0
     else:
         kp = 300.0
         ki = 0.05
@@ -176,14 +176,21 @@ def reflow():
         
         d = int(duration/time_step)
         temp = [0] * d
-        if setpoint <= 150:
+        set_original = setpoint
+        if setpoint <= 100:
+            setpoint_corr = 0.6*setpoint
+        elif setpoint > 100 and setpoint <= 150:
             setpoint_corr = 0.85*setpoint
+        else:
+            setpoint_corr = setpoint
     
         for i in range(d):
             t = get_temp()
             data.write(str(tt)+','+str(t)+'\n')
             if i <= int(0.5*d):
                 setpoint = setpoint_corr
+            else:
+                setpoint = set_original
             power = control_temp(setpoint, t)
             control_ssr(power)
             if (i % int(1/time_step)) == 0:
