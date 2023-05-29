@@ -16,6 +16,10 @@ Code is clearly not perfect, but it works quite nicely.
   <img src="https://raw.githubusercontent.com/tux-friend/minimal-Reflow-Plate/main/reflow_plate_2.png" alt="Reflow Plate OLED Detail" height="250"/>
 </div>
 
+<div class="images">
+  <img src="https://raw.githubusercontent.com/tux-friend/minimal-Reflow-Plate/main/reflow_profile_measured.png" alt="measured reflow profile" height="300"/>
+</div>
+
 ## Parts List
 
 Parts mainly from AliExpress, total costs: ~25$.
