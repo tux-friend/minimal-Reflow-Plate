@@ -69,7 +69,7 @@ def control_temp(setpoint, temp):
     # Update the last error
     last_error = error
     # Limit the control output to the range [0, 1]
-    if temp >= setpoint and setpoint < 230:
+    if temp >= setpoint:
         output = 0
     else:
         output = max(0, min(1, output))        
@@ -178,16 +178,22 @@ def reflow():
         temp = [0] * d
         set_original = setpoint
         if setpoint <= 100:
-            setpoint_corr = 0.6*setpoint
+            setpoint_corr = 0.6*setpoint - 7.5
         elif setpoint > 100 and setpoint <= 150:
-            setpoint_corr = 0.85*setpoint
+            setpoint_corr = 0.9*setpoint
+        elif setpoint > 150 and setpoint <= 200:
+            setpoint_corr = setpoint - 5.0
         else:
             setpoint_corr = setpoint
     
         for i in range(d):
             t = get_temp()
-            data.write(str(tt)+','+str(t)+'\n')
-            if i <= int(0.5*d):
+            data.write(str(tt)+','+str(t)+','+str(set_original)+'\n')
+            if i <= int(0.35*d):
+                setpoint = setpoint_corr
+            elif i > int(0.35*d) and i <= (int(0.35*d)+11):
+                setpoint = set_original - 3.0
+            elif i > (int(0.35*d)+11) and i <= int(0.7*d):
                 setpoint = setpoint_corr
             else:
                 setpoint = set_original
