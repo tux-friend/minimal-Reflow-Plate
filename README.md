@@ -17,7 +17,7 @@ Code is clearly not perfect, but it works quite nicely.
 </div>
 
 <div class="images">
-  <img src="https://raw.githubusercontefnt.com/tux-friend/minimal-Reflow-Plate/main/reflow_profile_measured.png" alt="measured reflow profile" height="300"/>
+  <img src="https://raw.githubusercontent.com/tux-friend/minimal-Reflow-Plate/main/reflow_profile_measured.png" alt="measured reflow profile" height="350"/>
 </div>
 
 ## Parts List
