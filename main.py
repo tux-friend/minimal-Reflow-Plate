@@ -57,7 +57,7 @@ def control_temp(setpoint, temp):
     else:
         kp = 300.0
         ki = 0.05
-        kd = 350.0
+        kd = 700.0
     # Calculate the error
     error = setpoint - temp
     # Calculate the integral term
@@ -162,9 +162,8 @@ def disp_finish():
         time.sleep(0.2)
 
 def reflow():
-    a = time.localtime()
-    open('temp_'+str(a[3])+str(a[4])+'.csv','w').close()
-    data = open('temp_'+str(a[3])+str(a[4])+'.csv','w')
+    open('temp_profile.csv','w').close()
+    data = open('temp_profile.csv','w')
     global butstate
     disp_graph()
     butstate = 0
